@@ -8,6 +8,8 @@ const apiToken = process.env.CF_API_TOKEN
 
 const kvMonitorsKey = 'monitors_data_v1_1'
 
+console.log('zhouzm get environment variables: CF_ACCOUNT_ID, KV_NAMESPACE_ID, CF_API_TOKEN')
+
 if (!accountId || !namespaceId || !apiToken) {
   console.error(
     'Missing required environment variables: CF_ACCOUNT_ID, KV_NAMESPACE_ID, CF_API_TOKEN',
