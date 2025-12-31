@@ -24,13 +24,23 @@ jobs:
         apiToken: ${{ secrets.CF_API_TOKEN }}
         accountId: ${{ secrets.CF_ACCOUNT_ID }}
         preCommands: |
-          # 加上了acount id作为参数 zhouzm
-          npx wrangler kv:namespace create KV_STATUS_PAGE --account-id=${{ secrets.CF_ACCOUNT_ID }} || true
-          KV_ID=$(npx wrangler kv:namespace list --account-id=${{ secrets.CF_ACCOUNT_ID }} | grep "KV_STATUS_PAGE" | head -n 1 | awk '{print $4}')
-          # export KV_NAMESPACE_ID=$(npx @cloudflare/wrangler@1 kv:namespace list 2> >(tee stderr.log >&2) | head -1 | node -pe "JSON.parse(fs.readFileSync('/dev/stdin').toString()).find(kv => kv.title.includes('KV_STATUS_PAGE')).id")
+          # 1. 现代 v3 语法：不需要 --account-id 参数，直接使用环境变量
+          # 注意：这里直接用 wrangler，不用 npx @cloudflare/wrangler@1
+          wrangler kv:namespace create KV_STATUS_PAGE || true
+          
+          # 2. 现代 v3 语法的 list 获取方式
+          # v3 默认输出表格，使用 --json 才是最稳妥的解析方式
+          KV_JSON=$(wrangler kv:namespace list --json)
+          
+          # 使用 node 解析 JSON 获取 ID
+          KV_NAMESPACE_ID=$(echo $KV_JSON | node -pe "JSON.parse(fs.readFileSync(0).toString()).find(kv => kv.title.includes('KV_STATUS_PAGE')).id")
+          
+          echo "Determined KV_ID: $KV_NAMESPACE_ID"
+          
+          # 3. 写入配置文件
           echo "[env.production]" >> wrangler.toml
-          echo "kv_namespaces = [{binding=\"KV_STATUS_PAGE\", id=\"$KV_ID\"}]" >> wrangler.toml
-          # echo "kv_namespaces = [{binding=\"KV_STATUS_PAGE\", id=\"${KV_NAMESPACE_ID}\"}]" >> wrangler.toml
+          echo "kv_namespaces = [{binding=\"KV_STATUS_PAGE\", id=\"${KV_NAMESPACE_ID}\"}]" >> wrangler.toml
+          
           [ -z "$SECRET_SLACK_WEBHOOK_URL" ] && echo "Secret SECRET_SLACK_WEBHOOK_URL not set, creating dummy one..." && SECRET_SLACK_WEBHOOK_URL="default-gh-action-secret" || true
           [ -z "$SECRET_TELEGRAM_API_TOKEN" ] && echo "Secret SECRET_TELEGRAM_API_TOKEN not set, creating dummy one..." && SECRET_TELEGRAM_API_TOKEN="default-gh-action-secret" || true
           [ -z "$SECRET_TELEGRAM_CHAT_ID" ] && echo "Secret SECRET_TELEGRAM_CHAT_ID not set, creating dummy one..." && SECRET_TELEGRAM_CHAT_ID="default-gh-action-secret" || true
