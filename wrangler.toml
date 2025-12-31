@@ -1,4 +1,4 @@
-name = "cf-workers-status-page"
+name = "cf-monitor-zeke"
 workers_dev = true
 account_id = ""
 type = "webpack"
