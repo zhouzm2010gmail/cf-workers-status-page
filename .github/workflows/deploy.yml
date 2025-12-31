@@ -31,7 +31,7 @@ jobs:
         accountId: ${{ secrets.CF_ACCOUNT_ID }}
         # 将动态创建 KV 的逻辑放入 preCommands
         preCommands: |
-          # 1. 尝试创建 KV（如果已存在会报错但被 || true 忽略）
+          # 1. 尝试创建 KV（如果已存在会报错但被 || true 忽略）zhouzm
           npx wrangler kv:namespace create KV_STATUS_PAGE || true
           
           # 2. 现代化的方式获取 ID 并写入配置
