@@ -6,7 +6,7 @@ Monitor your websites, showcase status including daily history, and get Slack no
 
 ![Slack notifications](.gitbook/assets/slack_screenshot.png)
 
-## Pre-requisites
+## Pre-requisites 
 
 You'll need a [Cloudflare Workers account](https://dash.cloudflare.com/sign-up/workers) with
 
